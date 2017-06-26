@@ -48,6 +48,8 @@ uint64_t stringPagesOffset;
 uint32_t stringsSize;
 uint32_t codeSize;
 
+uint32_t functionHash = 0;
+
 #define offsetMask 0x3FFFFFF
 
 // Program functions
@@ -76,6 +78,7 @@ uint8_t getCode(uint32_t index)
 
 	uint64_t *pagePtr = (uint64_t *)(buffer + codePagesOffset) + page;
 	uint32_t pageOffset = *pagePtr & offsetMask;
+	functionHash += buffer[pageOffset + offset];
 	return buffer[pageOffset + offset];
 }
 
@@ -278,12 +281,13 @@ uint32_t disassemble(uint32_t index)
 			printChar(index+1);
 			printf(", ");
 			printChar(index+2);
+			functionHash = 0;
 			break;
 		case 46:
 			printChar(index+1);
 			printf(", ");
 			printChar(index+2);
-			printf("\n------");
+			printf("\n------ 0x%x", functionHash);
 			break;
 		case 52:
 		case 53:
