@@ -78,7 +78,11 @@ uint8_t getCode(uint32_t index)
 
 	uint64_t *pagePtr = (uint64_t *)(buffer + codePagesOffset) + page;
 	uint32_t pageOffset = *pagePtr & offsetMask;
+
 	functionHash += buffer[pageOffset + offset];
+	functionHash += (functionHash << 10);
+	functionHash ^= (functionHash >> 6);
+
 	return buffer[pageOffset + offset];
 }
 
@@ -287,6 +291,9 @@ uint32_t disassemble(uint32_t index)
 			printChar(index+1);
 			printf(", ");
 			printChar(index+2);
+			functionHash += (functionHash << 3);
+			functionHash ^= (functionHash >> 11);
+			functionHash += (functionHash << 15);
 			printf("\n------ 0x%x", functionHash);
 			break;
 		case 52:
