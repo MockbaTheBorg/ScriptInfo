@@ -4,4 +4,4 @@ This small program dumps various information about GTA V scripts, and also produ
 
 To build, on GCC: gcc -o scriptinfo scriptinfo.c
 
-TO execute: scriptinfo <gta-v-script-file>
+TO execute: scriptinfo \<gta-v-script-file\>
