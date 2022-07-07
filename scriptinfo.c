@@ -1,6 +1,7 @@
-// GTA V Script Information v1.0 by Mockba the Borg
+// GTA V Script Information v1.3 by Mockba the Borg
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 // Script file header definition
@@ -49,6 +50,8 @@ uint32_t stringsSize;
 uint32_t codeSize;
 
 uint32_t functionHash = 0;
+
+#define INSTRUCTION_COUNT 128 
 
 #define offsetMask 0x3FFFFFF
 
@@ -189,7 +192,7 @@ void printNativeR(uint32_t pos)
 	printf("%u", c & 3);
 }
 
-const char *operands[127] = {
+const char *operands[INSTRUCTION_COUNT] = {
 	"nop",				"iadd",				"isub",				"imul",
 	"idiv",				"imod",				"iszero",			"ineg",
 	"icmpeq",			"icmpne",			"icmpgt",			"icmpge",
@@ -221,10 +224,10 @@ const char *operands[127] = {
 	"push 2",			"push 3",			"push 4",			"push 5",
 	"push 6",			"push 7",			"push -1.000000",	"pushf 0.000000",
 	"pushf 1.000000",	"pushf 2.000000",	"pushf 3.000000",	"pushf 4.000000",
-	"pushf 5.000000",	"pushf 6.000000",	"pushf 7.000000"
+	"pushf 5.000000",	"pushf 6.000000",	"pushf 7.000000",    "isBitSet"
 };
 
-const uint8_t size[127] = {
+const uint8_t size[INSTRUCTION_COUNT] = {
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 2, 3, 4, 5, 5, 1, 1, 4, 5, 3, 1,
@@ -232,7 +235,7 @@ const uint8_t size[127] = {
 	2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4,
 	4, 4, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
 uint32_t disassemble(uint32_t index)
@@ -243,9 +246,10 @@ uint32_t disassemble(uint32_t index)
 	uint8_t opcode = getCode(index);
 	printf("%08x: ", index);
 
-	if(opcode > 126) {
+	// check for unknown instruction
+	if(opcode >= INSTRUCTION_COUNT){
 		dumpCode(index, 6);
-		printf("--Unknown--");
+		printf("--UNKNOWN INSTRUCTION: %d --", opcode);
 		exit(1);
 	}
 
@@ -388,7 +392,7 @@ int main( int argc, char *argv[] )
 	uint32_t pageEnd;
 
 	printf("GTA V Script Information/Disassembler\n");
-	printf("       v1.1 by Mockba the Borg\n");
+	printf("       v1.2 by Mockba the Borg.\n");
 	printf("-------------------------------------\n");
 	if(argc != 2) {
 		printf("Usage: scriptinfo <GTA Script File>\n");
@@ -417,11 +421,6 @@ int main( int argc, char *argv[] )
 	printf("ok!\n");
 
 	header = (header_t*)buffer;
-
-	if(header->magic != 0x405A9Ed0) {
-		printf("File is not a GTAV script (0x%08x).\n", header->magic);
-		exit(1);
-	}
 
 // Cleaning pointers to make life easier
 	pagesOffset = header->pagesOffset & offsetMask;
